@@ -1,17 +1,10 @@
-# Screen Architecture Skill
+# CLAUDE.md — Movie Project
 
-When this skill is invoked, implement or scaffold the coordinator pattern described below for the feature the user specifies. If no feature name is given, ask for one before proceeding.
-
-## What to do when invoked
-
-1. Ask the user: **what feature/screen are you building?** (e.g. "Profile", "Settings", "Checkout")
-2. Use the feature name to generate all file names and type names (e.g. "Profile" → `ProfileCoordinator`, `ProfileViewModel`, `ProfileView`, `ProfileAction`, `ProfileDestination`)
-3. Create the files listed in **Files to generate** below
-4. Wire them together exactly as described in the pattern rules
+This file describes the architecture and coding patterns used in this project. Follow these rules when adding, modifying, or reviewing any feature screen.
 
 ---
 
-## Pattern Overview
+## Screen Architecture
 
 Every screen is composed of:
 ```
@@ -24,7 +17,7 @@ Coordinators are **one-shot wiring structs** — they live only long enough to c
 
 ---
 
-## Core Types (already exist in the project — do not recreate)
+## Core Types (already exist — do not recreate)
 
 ```swift
 // NavigationStream — CurrentValueSubject, starts nil
@@ -68,7 +61,7 @@ extension Coordinator {
 
 ---
 
-## Files to Generate
+## Adding a New Feature Screen
 
 For a feature named **{Feature}**, create these files:
 
@@ -79,26 +72,16 @@ import Foundation
 import SwiftUI
 import Combine
 
-// Actions the ViewModel can dispatch
 enum {Feature}Action {
     // TODO: add cases e.g. case showDetail(Item)
 }
 
-// Destinations this screen can navigate to
 enum {Feature}Destination: NavigationDestination {
     // TODO: add cases e.g. case detail(any View)
 
-    static func == (lhs: {Feature}Destination, rhs: {Feature}Destination) -> Bool {
-        // implement per case
-    }
-
-    func hash(into hasher: inout Hasher) {
-        // implement per case
-    }
-
-    var view: some View {
-        // return destination.view per case
-    }
+    static func == (lhs: {Feature}Destination, rhs: {Feature}Destination) -> Bool { ... }
+    func hash(into hasher: inout Hasher) { ... }
+    var view: some View { ... }
 }
 
 struct {Feature}Coordinator: Coordinator {
@@ -111,7 +94,6 @@ struct {Feature}Coordinator: Coordinator {
         let stream = navigationStream           // capture stream, not self
         return ActionDispatcher<{Feature}Action> { action in
             switch action {
-            // TODO: handle each action, send destination to stream
             // case .showDetail(let item):
             //     var child = ChildCoordinator()
             //     self.add(&child)
@@ -137,11 +119,9 @@ extension {Feature}Coordinator {
 
 ```swift
 import Foundation
-import Combine
 
 @Observable
 final class {Feature}ViewModel {
-    // Published state — value types only
     var items: [Item] = []
     var isLoading = false
     var error: Error?
@@ -150,7 +130,6 @@ final class {Feature}ViewModel {
 
     @ObservationIgnored private let service: {Feature}Servicing
     @ObservationIgnored private var loadTask: Task<Void, Never>?
-
     private var hasLoaded = false
 
     init(actionDispatcher: ActionDispatcher<{Feature}Action>, service: {Feature}Servicing) {
@@ -163,14 +142,10 @@ final class {Feature}ViewModel {
         hasLoaded = true
         isLoading = true
         defer { isLoading = false }
-        do {
-            items = try await service.fetch()
-        } catch {
-            self.error = error
-        }
+        do { items = try await service.fetch() }
+        catch { self.error = error }
     }
 
-    // Forward user interactions as actions
     func onItemTapped(_ item: Item) {
         dispatch(.showDetail(item))
     }
@@ -187,39 +162,29 @@ import Combine
 struct {Feature}View: View {
     @State var viewModel: {Feature}ViewModel
     @State private var path = NavigationPath()
-
     let navigationStream: NavigationStream<{Feature}Destination>
 
     var body: some View {
         NavigationStack(path: $path) {
             content
-                .navigationDestination(for: {Feature}Destination.self) { destination in
-                    destination.view
-                }
+                .navigationDestination(for: {Feature}Destination.self) { $0.view }
                 .navigationTitle("{Feature}")
         }
-        .onReceive(navigationStream.compactMap { $0 }) { destination in
-            path.append(destination)
-        }
+        .onReceive(navigationStream.compactMap { $0 }) { path.append($0) }
         .task { await viewModel.onLoad() }
     }
 
     @ViewBuilder
     private var content: some View {
-        if viewModel.isLoading {
-            ProgressView()
-        } else {
-            List(viewModel.items) { item in
-                // TODO: render item row
-            }
-        }
+        if viewModel.isLoading { ProgressView() }
+        else { List(viewModel.items) { item in /* render row */ } }
     }
 }
 ```
 
 ---
 
-## Rules to enforce when generating or reviewing code
+## Rules
 
 **Coordinator**
 - Always a `struct`, never a `class`
@@ -227,7 +192,7 @@ struct {Feature}View: View {
 - `buildDispatcher()` closure must capture `let stream = navigationStream` — never `self`
 - `make()` is an extension, not part of the struct body
 - No generic type parameters that shadow the `ActionType` enum
-- No stored `AnyCancellable` or mutable state — those belong in a `CoordinatorState` class
+- No stored `AnyCancellable` or mutable state
 - Released immediately after `make()` — do not store or pass around coordinators
 
 **ViewModel**
@@ -236,7 +201,7 @@ struct {Feature}View: View {
 - All observable state is value types
 - Mark services and tasks `@ObservationIgnored`
 - Use `hasLoaded` guard in `onLoad()` — call via `.task`, not `.onAppear`
-- Dispatches actions → coordinator decides navigation; ViewModel never holds `NavigationStream`
+- Dispatches actions → Coordinator decides navigation; ViewModel never holds `NavigationStream`
 - `[weak self]` only inside `Task` closures — never on struct captures
 
 **View**
@@ -247,9 +212,8 @@ struct {Feature}View: View {
 - No business logic, no service calls
 
 **NavigationStream**
-- Created by the Coordinator, passed to ViewModel and View
+- Created by the Coordinator, passed to both ViewModel and View
 - Views use `.compactMap { $0 }` because stream starts as `nil`
-- Never replaced to change behavior — send a different destination instead
 
 **@Dependency**
 - Set by parent Coordinator via `add(&child)` before `make()` is called
@@ -258,15 +222,13 @@ struct {Feature}View: View {
 
 ---
 
-## When reviewing existing code for this pattern
+## Common Mistakes to Avoid
 
-Flag and fix:
-- Coordinator is a `class` → convert to `struct`
+- Coordinator is a `class` → must be `struct`
 - Generic type parameter on Coordinator shadows Action enum → remove generic
 - `buildDispatcher` captures `self` instead of stream → fix capture
 - ViewModel holds `NavigationStream` directly → replace with `ActionDispatcher`
 - View calls services directly → move to ViewModel
-- `.onAppear` used for data loading → replace with `.task` + `hasLoaded`
-- `AnyCancellable` stored in Coordinator struct → move to `CoordinatorState` class
-- Navigation uses `@State` booleans → replace with `NavigationStream` destinations
-- `AnyView` stored in destination enum → prefer `any View` with `AnyView` only at the call site
+- `.onAppear` for data loading → replace with `.task` + `hasLoaded`
+- Navigation via `@State` booleans → replace with `NavigationStream` destinations
+- `AnyView` stored in destination enum → prefer `any View`; use `AnyView` only at call site
