@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct movieApp: App {
+    let cordinator = AppCoordinator()
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            cordinator.make()
         }
     }
 }

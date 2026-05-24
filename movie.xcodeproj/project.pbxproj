@@ -29,9 +29,64 @@
 		A92ADFB82FC2727300B62B50 /* movieUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = movieUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		A92ADFFE2FC2730D00B62B50 /* Exceptions for "movie" folder in "movieTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Core/AppCoordinator.swift,
+				Core/AppDestination.swift,
+				Core/AppView.swift,
+				Core/Core.swift,
+				models/Movie.swift,
+				models/Title.swift,
+				models/Titles.swift,
+				MovieDetail/DetailView.swift,
+				MovieDetail/MovieDetailCoordinator.swift,
+				MovieDetail/MovieDetailView.swift,
+				MovieDetail/MovieDetailViewModel.swift,
+				movielist/MovieListCoordinator.swift,
+				movielist/MovieListView.swift,
+				movielist/MovieListViewModel.swift,
+				movielist/Movierow.swift,
+				service/MovieDetailService.swift,
+				service/MovieService.swift,
+				service/Service.swift,
+			);
+			target = A92ADFAD2FC2727300B62B50 /* movieTests */;
+		};
+		A92ADFFF2FC2730D00B62B50 /* Exceptions for "movie" folder in "movieUITests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Core/AppCoordinator.swift,
+				Core/AppDestination.swift,
+				Core/AppView.swift,
+				Core/Core.swift,
+				models/Movie.swift,
+				models/Title.swift,
+				models/Titles.swift,
+				MovieDetail/DetailView.swift,
+				MovieDetail/MovieDetailCoordinator.swift,
+				MovieDetail/MovieDetailView.swift,
+				MovieDetail/MovieDetailViewModel.swift,
+				movielist/MovieListCoordinator.swift,
+				movielist/MovieListView.swift,
+				movielist/MovieListViewModel.swift,
+				movielist/Movierow.swift,
+				service/MovieDetailService.swift,
+				service/MovieService.swift,
+				service/Service.swift,
+			);
+			target = A92ADFB72FC2727300B62B50 /* movieUITests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		A92ADFA32FC2727100B62B50 /* movie */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A92ADFFE2FC2730D00B62B50 /* Exceptions for "movie" folder in "movieTests" target */,
+				A92ADFFF2FC2730D00B62B50 /* Exceptions for "movie" folder in "movieUITests" target */,
+			);
 			path = movie;
 			sourceTree = "<group>";
 		};
@@ -463,6 +518,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
@@ -484,6 +540,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
