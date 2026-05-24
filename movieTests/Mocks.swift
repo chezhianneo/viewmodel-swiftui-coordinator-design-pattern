@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 @testable import movie
 
 // MARK: - Mock Services
@@ -33,6 +34,71 @@ final class MockMovieDetailServicing: MovieDetailServicing {
 final class MockNetworkingClient: NetworkingClient {
     func execute<T: Request, R: Response>(_ request: T, _ response: R) async throws -> R.Response {
         fatalError("not used in unit tests")
+    }
+}
+
+// MARK: - Mock ViewModels
+
+@MainActor
+final class MockMovieListViewModel: MovieListViewModeling {
+    var items: [Title] = []
+    var searchText: String = ""
+    var error: Error?
+    var onMovieTappedCalled = false
+    var lastTappedTitle: Title?
+
+    func onMovieTapped(_ title: Title) {
+        onMovieTappedCalled = true
+        lastTappedTitle = title
+    }
+}
+
+@MainActor
+final class MockMovieDetailViewModel: MovieDetailViewModeling {
+    var title: Title
+    var movie: Movie?
+    var isLoading = false
+    var errorMessage: String?
+    var onLoadCalled = false
+
+    init(title: Title = .stub()) {
+        self.title = title
+    }
+
+    func onLoad() async {
+        onLoadCalled = true
+    }
+}
+
+// MARK: - Mock Coordinators
+
+struct MockMovieListCoordinator: MovieListCoordinating {
+    typealias ActionType = MovieListAction
+    var makeCalled = false
+
+    func buildDispatcher() -> ActionDispatcher<MovieListAction> {
+        ActionDispatcher { _ in }
+    }
+
+    mutating func make() -> any View {
+        makeCalled = true
+        return EmptyView()
+    }
+}
+
+struct MockMovieDetailCoordinator: MovieDetailCoordinating {
+    typealias ActionType = MovieDetailAction
+    var makeCalled = false
+    var lastTitle: Title?
+
+    func buildDispatcher() -> ActionDispatcher<MovieDetailAction> {
+        ActionDispatcher { _ in }
+    }
+
+    mutating func make(title: Title) -> any View {
+        makeCalled = true
+        lastTitle = title
+        return EmptyView()
     }
 }
 

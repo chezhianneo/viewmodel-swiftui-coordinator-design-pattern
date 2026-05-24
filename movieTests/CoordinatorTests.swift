@@ -35,6 +35,7 @@ struct MovieDetailCoordinatorTests {
     @Test func buildDispatcherReturnsWithoutCrash() {
         let coordinator = MovieDetailCoordinator()
         coordinator.networkClient = MockNetworkingClient()
+        coordinator.dummyClient = DummyClient()
         _ = coordinator.buildDispatcher()
     }
 

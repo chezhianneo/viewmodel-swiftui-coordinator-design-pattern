@@ -1,14 +1,25 @@
 import Foundation
 import Combine
 
+protocol MovieListViewModeling {
+    /// The current list of titles matching the search query.
+    var items: [Title] { get set }
+    /// The current search input; triggers a debounced search when changed.
+    var searchText: String { get set }
+    /// Set when a search request fails.
+    var error: Error? { get set }
+    /// Called when the user taps a title row; dispatches navigation to the coordinator.
+    func onMovieTapped(_ title: Title)
+}
+
 @Observable
-final class MovieListViewModel {
+final class MovieListViewModel: MovieListViewModeling {
     var items: [Title] = []
     var searchText: String = "" {
         didSet { onSearchTextChanged() }
     }
     var error: Error?
-    
+
     let dispatch: ActionDispatcher<MovieListAction>
 
     @ObservationIgnored private let movieService: MovieServicing

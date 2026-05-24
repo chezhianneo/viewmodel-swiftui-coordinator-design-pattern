@@ -10,7 +10,12 @@ enum MovieDetailNavigation: NavigationDestination {
     }
 }
 
-struct MovieDetailCoordinator: Coordinator {
+protocol MovieDetailCoordinating: Coordinator {
+    /// Wires the ViewModel and View together for the given title and returns the detail view.
+    mutating func make(title: Title) -> any View
+}
+
+struct MovieDetailCoordinator: MovieDetailCoordinating {
     @Dependency var networkClient: NetworkingClient
     @Dependency var dummyClient: DummyClient
     private let navigationStream = NavigationStream<MovieDetailNavigation>(nil)

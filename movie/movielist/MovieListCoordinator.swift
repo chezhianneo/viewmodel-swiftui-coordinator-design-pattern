@@ -28,10 +28,18 @@ enum MovieListDestination: NavigationDestination {
     }
 }
 
-struct MovieListCoordinator: Coordinator {
-    private let navigationStream: NavigationStream<MovieListDestination>
+protocol MovieListCoordinating: Coordinator {
+    /// Wires the ViewModel and View together and returns the entry view for this screen.
+    mutating func make() -> any View
+}
+
+struct MovieListCoordinator: MovieListCoordinating {
+    
+    //MARK: Dependency
     @Dependency var networkClient: NetworkingClient
     @Dependency var dummyClient: DummyClient
+    
+    private let navigationStream: NavigationStream<MovieListDestination>
 
     init(_ navigationStream: NavigationStream<MovieListDestination> = NavigationStream<MovieListDestination>(nil),
          _ networkClient: NetworkingClient = NetworkClient()) {

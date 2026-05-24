@@ -1,1 +1,1 @@
-// Reserved for future environment key extensions
+// Reserved for future extensions
