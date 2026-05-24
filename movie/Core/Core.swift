@@ -6,26 +6,23 @@ typealias NavigationStream<D: NavigationDestination> = CurrentValueSubject<D?, N
 
 protocol NavigationDestination: Hashable {
     associatedtype Content: View
-    
+
     @ViewBuilder
     var view: Content { get }
 }
 
-// MARK: - Action Dispatcher
+// MARK: - ActionDispatcher
+
 struct ActionDispatcher<Action> {
     let send: (Action) -> Void
 
-    init(_ send: @escaping (Action) -> Void) {
-        self.send = send
-    }
-    
-    func callAsFunction(_ action: Action) {
-        send(action)
-    }
+    init(_ send: @escaping (Action) -> Void) { self.send = send }
+
+    func callAsFunction(_ action: Action) { send(action) }
 }
 
-
 // MARK: - @Dependency Property Wrapper
+
 @propertyWrapper
 struct Dependency<Value> {
     private let storage = Storage()
@@ -42,9 +39,7 @@ struct Dependency<Value> {
         nonmutating set { storage.value = newValue }
     }
 
-    final class Storage {
-        var value: Value?
-    }
+    final class Storage { var value: Value? }
 }
 
 // MARK: - DependencySettable
@@ -65,7 +60,7 @@ extension Dependency: DependencySettable {
     var storedValue: Any? { storage.value }
 }
 
-// MARK: - CoordinatorNode
+// MARK: - Coordinator
 
 protocol Coordinator {
     associatedtype ActionType

@@ -17,14 +17,13 @@ enum MovieListDestination: NavigationDestination {
 
     func hash(into hasher: inout Hasher) {
         switch self {
-        case .movieDetail:   hasher.combine("movieDetail")
+        case .movieDetail: hasher.combine("movieDetail")
         }
     }
 
     var view: some View {
         switch self {
-        case .movieDetail(let view):
-            return AnyView(view)
+        case .movieDetail(let view): return AnyView(view)
         }
     }
 }
@@ -32,9 +31,7 @@ enum MovieListDestination: NavigationDestination {
 struct MovieListCoordinator: Coordinator {
     private let navigationStream: NavigationStream<MovieListDestination>
     @Dependency var networkClient: NetworkingClient
-
-    private var anyCancellable = Set<AnyCancellable>()
-    private var dispatcher: ActionDispatcher<MovieListAction>?
+    @Dependency var dummyClient: DummyClient
 
     init(_ navigationStream: NavigationStream<MovieListDestination> = NavigationStream<MovieListDestination>(nil),
          _ networkClient: NetworkingClient = NetworkClient()) {
@@ -43,8 +40,8 @@ struct MovieListCoordinator: Coordinator {
     }
 
     func buildDispatcher() -> ActionDispatcher<MovieListAction> {
-        let stream = self.navigationStream
-        let dispatcher = ActionDispatcher<MovieListAction>.init {(action: MovieListAction) in
+        let stream = navigationStream
+        return ActionDispatcher<MovieListAction> { action in
             switch action {
             case .showMovieDetail(let title):
                 var movieDetailCoordinator = MovieDetailCoordinator()
@@ -53,7 +50,6 @@ struct MovieListCoordinator: Coordinator {
                 stream.send(.movieDetail(AnyView(view)))
             }
         }
-        return dispatcher
     }
 }
 
@@ -61,8 +57,9 @@ extension MovieListCoordinator {
     mutating func make() -> any View {
         let dispatcher = buildDispatcher()
         let viewModel = MovieListViewModel(
-            actionDispatcher: dispatcher, movieService: MovieService(client: networkClient))
-        let view = MovieListView(viewModel: viewModel, navigationStream: navigationStream)
-        return view
+            actionDispatcher: dispatcher,
+            movieService: MovieService(client: networkClient)
+        )
+        return MovieListView(viewModel: viewModel, navigationStream: navigationStream)
     }
 }

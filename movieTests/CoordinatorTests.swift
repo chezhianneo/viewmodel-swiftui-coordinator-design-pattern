@@ -41,6 +41,7 @@ struct MovieDetailCoordinatorTests {
     @Test func makeReturnsViewWithoutCrash() {
         var coordinator = MovieDetailCoordinator()
         coordinator.networkClient = MockNetworkingClient()
+        coordinator.dummyClient = DummyClient()
         _ = coordinator.make(title: .stub())
     }
 }

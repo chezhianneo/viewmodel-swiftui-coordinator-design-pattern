@@ -21,7 +21,7 @@ final class MovieListViewModel {
     }
 
     func onMovieTapped(_ title: Title) {
-        dispatch(.showMovieDetail(title))
+        dispatch.send(.showMovieDetail(title))
     }
 
     private func onSearchTextChanged() {
